@@ -3,7 +3,7 @@
 	/*
 	Plugin Name: Email Post Approval
 	Description: Ability to review and approve posts for publishing via email.
-	Version: 1.1.2
+	Version: 1.1.3
 	Author: BinaryM Inc - Travis Lopes
 	Author URI: http://binarym.com/
 	License: GPL2
@@ -24,9 +24,9 @@
 		// Fire off function when plugin is activated
 		public function activation() {
 			add_option('epa_send_to', get_bloginfo('admin_email'));
-			add_option('epa_post_statuses', array('pending', 'draft'));
-			add_option('epa_email_fields', array('title', 'body'));
-		}
+			add_option('epa_post_statuses', array('pending'));
+			add_option('epa_email_fields', array('title', 'post_date', 'categories', 'tags', 'post_meta', 'body'));
+		}		
 		
 		// Fire off function when plugin is deactivated
 		public function deactivation() {

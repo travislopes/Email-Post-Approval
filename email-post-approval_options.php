@@ -27,7 +27,7 @@
 
 		// Add options page to menu
 		public function add_options_page_to_menu(){
-			add_options_page('Email Post Approval Settings', 'Email Post Aproval', 'manage_options', 'email-post-approval', array($this, 'create_options_page'));
+			add_options_page('Email Post Approval Settings', 'Email Post Approval', 'manage_options', 'email-post-approval', array($this, 'create_options_page'));
 		}
 
 		// Create options page
