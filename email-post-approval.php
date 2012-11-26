@@ -3,8 +3,8 @@
 	/*
 	Plugin Name: Email Post Approval
 	Description: Ability to review and approve posts for publishing via email.
-	Version: 1.1.3
-	Author: BinaryM Inc - Travis Lopes
+	Version: 1.1.4
+	Author: BinaryM Inc - Travis Lopes & Matt McInvale
 	Author URI: http://binarym.com/
 	License: GPL2
 	*/
@@ -59,7 +59,7 @@
 			
 			// Get the needed information
 			$post_taxonomies = get_the_taxonomies($post_ID);
-			$post_author_email = the_author_meta('user_email', $post_data->post_author);
+			$post_author_email = get_the_author_meta('user_email', $post_data->post_author);
 			$post_hash = self::generate_hash($post_ID);
 			$post_meta = get_post_meta($post_ID);
 

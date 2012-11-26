@@ -64,7 +64,7 @@
 								<label for="send_to">Send post approval email to</label>
 							</th>
 							<td>
-								<input type="email" class="regular-text" name="send_to" id="send_to" value="<?php echo $option_values['send_to']; ?>" />
+								<input class="regular-text" name="send_to" id="send_to" value="<?php echo $option_values['send_to']; ?>" />
 							</td>
 						</tr>
 						<tr valign="top">
