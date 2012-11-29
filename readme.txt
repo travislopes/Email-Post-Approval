@@ -1,5 +1,5 @@
 === Email Post Approval ===
-Contributors: travislopes
+Contributors: travislopes, mcinvale
 Tags: database, mysql, search, replace, admin, security
 Requires at least: 3.0
 Tested up to: 3.4.2
@@ -20,5 +20,12 @@ Ability to review and approve posts for publishing via email. Upon the saving (o
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+= v1.1.0 =
+* Added options page with the ability to set:
+	* Email recipient
+	* Information shown in email
+	* Statuses that trigger email
+* Made `<!--more-->` tag visible in email 
+* Changed post approval to set post to future instead of publish.
 = v1.0.0 =
 * Initial release

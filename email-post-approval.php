@@ -3,7 +3,7 @@
 	/*
 	Plugin Name: Email Post Approval
 	Description: Ability to review and approve posts for publishing via email.
-	Version: 1.1.4
+	Version: 1.1.0
 	Author: BinaryM Inc - Travis Lopes & Matt McInvale
 	Author URI: http://binarym.com/
 	License: GPL2
