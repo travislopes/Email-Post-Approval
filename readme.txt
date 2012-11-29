@@ -20,6 +20,8 @@ Ability to review and approve posts for publishing via email. Upon the saving (o
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+= v1.1.5 =
+* Changed email sender to be from admin email
 = v1.1.0 =
 * Added options page with the ability to set:
 	* Email recipient
