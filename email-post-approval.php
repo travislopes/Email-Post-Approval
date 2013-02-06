@@ -121,21 +121,28 @@
 	register_activation_hook(__FILE__, array('Email_Post_Approval', 'activation'));
 	register_deactivation_hook(__FILE__, array('Email_Post_Approval', 'deactivation'));
 	
-	// If URL includes "approve_post" argument, check the key and approve post if key exists.
-	if(isset($_GET['approve_post'])){
-		$get_post_to_approve = get_posts('posts_per_page=1&post_status=any&meta_key=_epa-approve_key&meta_value='. $_GET['approve_key']);
-		$change_author = $_GET['default_author'];
-				
-		// If key exists, publish post, delete key, and redirect to published post.
-		if($get_post_to_approve){
-			$the_post = get_post($get_post_to_approve[0]->ID, 'ARRAY_A');
-			$the_post['post_status'] = 'future';
-			if($change_author==="true"){ $the_post['post_author'] = get_option('epa_default_author'); }
-			wp_update_post($the_post);
-			delete_post_meta($get_post_to_approve[0]->ID, '_epa-approve_key');
-			header('Location: '. get_permalink($get_post_to_approve[0]->ID));
-		// If key doesn't exist, display an alert saying post is not found.
-		} else {
-			if (!defined('MULTISITE')) echo '<script>alert(\'The post you are attempting to approve is not found.\');</script>';
+	add_action('init', 'epaMaybeApprovePost', 0);
+	
+	function epaMaybeApprovePost() {
+	
+		// If URL includes "approve_post" argument, check the key and approve post if key exists.
+		if(isset($_GET['approve_post'])){
+			$get_post_to_approve = get_posts('posts_per_page=1&post_status=any&meta_key=_epa-approve_key&meta_value='. $_GET['approve_key']);
+			$change_author = $_GET['default_author'];
+					
+			// If key exists, publish post, delete key, and redirect to published post.
+			if($get_post_to_approve){
+				$the_post = get_post($get_post_to_approve[0]->ID, 'ARRAY_A');
+				$the_post['post_status'] = 'future';
+				if($change_author==="true"){ $the_post['post_author'] = get_option('epa_default_author'); }
+				wp_update_post($the_post);
+				delete_post_meta($get_post_to_approve[0]->ID, '_epa-approve_key');
+				wp_redirect(get_permalink($get_post_to_approve[0]->ID), 301);
+				exit;
+			// If key doesn't exist, display an alert saying post is not found.
+			} else {
+				if (!defined('MULTISITE')) echo '<script>alert(\'The post you are attempting to approve is not found.\');</script>';
+			}
 		}
+		
 	}
