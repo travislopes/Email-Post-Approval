@@ -15,6 +15,7 @@
 			);
 			$this->email_fields = array(
 				array('key' => 'title', 		'value' => 'Post Title'),
+				array('key' => 'post_author',	'value' => 'Post Author'),
 				array('key' => 'post_date',		'value' => 'Publish Date'),
 				array('key' => 'categories',	'value' => 'Categories'),
 				array('key' => 'tags',			'value' => 'Tags'),
@@ -36,6 +37,7 @@
 				'send_to' => get_option('epa_send_to'),
 				'post_statuses' => get_option('epa_post_statuses'),
 				'email_fields' => get_option('epa_email_fields'),
+				'default_author' => get_option('epa_default_author')
 			);
 			
 			if(isset($_POST['epa_form_submission'])) {
@@ -43,11 +45,13 @@
 					'send_to' => $_POST['send_to'],
 					'post_statuses' => $_POST['post_statuses'],
 					'email_fields' => $_POST['email_fields'],
+					'default_author' => $_POST['default_author'],
 				);
 				
 				update_option('epa_send_to', $option_values['send_to']);
 				update_option('epa_post_statuses', $option_values['post_statuses']);
 				update_option('epa_email_fields', $option_values['email_fields']);
+				update_option('epa_default_author', $option_values['default_author']);
 				
 				echo '<div id="message" class="updated fade"><p><strong>Settings	 saved.</strong></p></div>';
 			}
@@ -61,12 +65,34 @@
 					<table class="form-table">
 						<tr valign="top">
 							<th scope="row">
-								<label for="send_to">Send post approval email to</label>
+								<label for="send_to">Send post approval email to:</label>
 							</th>
 							<td>
 								<input class="regular-text" name="send_to" id="send_to" value="<?php echo $option_values['send_to']; ?>" />
 							</td>
 						</tr>
+						<tr valign="top">
+							<th scope="row">
+								<label for="send_to">Default author for approved posts:</label>
+							</th>
+							<td>
+								<select name="default_author">
+									<?php
+										if(empty($option_values['default_author']) || $option_values['default_author']==="0") {
+											echo '<option value="0" selected="selected">None</option>';
+										} else {
+											echo '<option value="0">None</option>';
+										}
+									
+										foreach(get_users(array('orderby' => 'display_name', 'fields' => array('ID', 'display_name'))) as $author) {
+											$selected = ($option_values['default_author'] === $author->ID) ? 'selected="selected"' : '';
+											echo '<option value="'. $author->ID .'" '. $selected .'>'. $author->display_name .'</option>';
+										}
+									?>
+								</select>
+							</td>
+						</tr>
+
 						<tr valign="top">
 							<th scope="row">
 								<label for="post_statuses">Send email when this post is saved as:</label>
