@@ -121,10 +121,8 @@
 	register_activation_hook(__FILE__, array('Email_Post_Approval', 'activation'));
 	register_deactivation_hook(__FILE__, array('Email_Post_Approval', 'deactivation'));
 	
-	add_action('init', 'epaMaybeApprovePost', 0);
-	
-	function epaMaybeApprovePost() {
-	
+	add_action('init', 'epa_approve_post', 0);
+	function epa_approve_post() {
 		// If URL includes "approve_post" argument, check the key and approve post if key exists.
 		if(isset($_GET['approve_post'])){
 			$get_post_to_approve = get_posts('posts_per_page=1&post_status=any&meta_key=_epa-approve_key&meta_value='. $_GET['approve_key']);
@@ -144,5 +142,4 @@
 				if (!defined('MULTISITE')) echo '<script>alert(\'The post you are attempting to approve is not found.\');</script>';
 			}
 		}
-		
 	}
