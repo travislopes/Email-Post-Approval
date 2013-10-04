@@ -21,6 +21,7 @@
 				array('key' => 'tags',			'value' => 'Tags'),
 				array('key' => 'post_meta',		'value' => 'Post Meta'),
 				array('key' => 'body',			'value' => 'Post Body'),
+				array('key' => 'thumbnail',			'value' => 'Featured Image'),
 			);
 		
 			add_action('admin_menu', array($this, 'add_options_page_to_menu'));
@@ -102,8 +103,9 @@
 									<?php
 										foreach($this->post_status_types as $post_status) {
 											if (array_search($post_status['key'], $option_values['post_statuses']) !== FALSE) $checked = 'checked="checked"';
+											else $checked = '';
 											echo '<label><input name="post_statuses[]" type="checkbox" value="'. $post_status['key'] .'" '. $checked .'> '. $post_status['value'] .'</label><br />';
-											$checked = '';
+											
 										}
 									?>
 								</fieldset>

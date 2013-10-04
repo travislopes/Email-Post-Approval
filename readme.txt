@@ -2,7 +2,7 @@
 Contributors: travislopes, mcinvale
 Tags: database, mysql, search, replace, admin, security
 Requires at least: 3.0
-Tested up to: 3.5.1
+Tested up to: 3.6.1
 Stable tag: 3.4.2
 
 Ability to review and approve posts for publishing via email.
@@ -20,6 +20,8 @@ Ability to review and approve posts for publishing via email. Upon the saving (o
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+= v1.2.2 =
+* Added post thumbnail option
 = v1.2.1 =
 * Patched warnings
 * Fixed multisite redirect on approval
