@@ -118,12 +118,13 @@ class Email_Post_Approval {
 				case 'body':
 					$message .= '<br/><strong>Post Body:</strong><br />';
 					$message .= str_replace( '<!--more-->', '&lt;!--more--&gt;', $post->post_content );
-					$message .= '<br />';
+					$message .= '<br /><br />';
 					break;
 
 				case 'categories':
 					$message .= '<strong>Categories:</strong> ';
 					$message .= isset( $post_taxonomies['category'] ) ? $post_taxonomies['category'] : 'None';
+					$message .= '<br />';
 					break;
 
 				case 'post_author':
@@ -160,6 +161,7 @@ class Email_Post_Approval {
 				case 'tags':
 					$message .= '<strong>Tags:</strong> ';
 					$message .= isset( $post_taxonomies['post_tag'] ) ? $post_taxonomies['post_tag'] : 'None';
+					$message .= '<br />';
 					break;
 
 				case 'thumbnail':
@@ -186,15 +188,24 @@ class Email_Post_Approval {
 			get_bloginfo( 'url' )
 		);
 
+		// Prepare default author link.
+		$default_author_link = '';
+		if ( $default_author ) {
+			$default_author_link = sprintf(
+				esc_html__( ' or %sapprove as %s%s', 'email-post-approval' ),
+				'<a href="' . esc_url( add_query_arg( array( 'default_author' => 'true' ), $approval_url ) ) . '">',
+				esc_html( $default_author->display_name ),
+				'</a>'
+			);
+		}
+
 		// Add approval links.
 		$message .= sprintf(
-			esc_html__( '%sApprove as %s%s or %sapprove as %s%s.', 'email-post-approval' ),
+			esc_html__( '%sApprove as %s%s%s.', 'email-post-approval' ),
 			'<a href="' . esc_url( $approval_url ) . '">',
 			esc_html( $post_author->display_name ),
 			'</a>',
-			'<a href="' . esc_url( add_query_arg( array( 'default_author' => 'true' ), $approval_url ) ) . '">',
-			esc_html( $default_author->display_name ),
-			'</a>'
+			$default_author_link
 		);
 
 		// Add disclaimer.
@@ -533,6 +544,12 @@ class Email_Post_Approval {
 			update_option( 'epa_' . $key, $value );
 
 		}
+
+		// Display save message.
+		printf(
+			'<div id="message" class="updated notice notice-success is-dismissible"><p>%s</p></div>',
+			esc_html__( 'Settings saved.', 'email-post-approval' )
+		);
 
 		return $new_settings;
 
