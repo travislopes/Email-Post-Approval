@@ -3,7 +3,7 @@
 Plugin Name: Email Post Approval
 Description: Review and approve posts for publishing right from your inbox
 Version: 2.0
-Author: Travis Lopes, Matt McInvale (BinaryM)
+Author: <a href="http://travislop.es">Travis Lopes</a> and <a href="http://binarym.com">Matt McInvale</a>
 Author URI: http://binarym.com/
 License: GPL2
  */

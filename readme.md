@@ -3,12 +3,15 @@
 
 **Requires at least:** 3.0
 
-**Tested up to:** 3.6.1
+**Tested up to:** 4.7.3
 
 ### Description
-WordPress plugin that provides the ability to review and approve posts for publishing via email. Upon the saving (or creation) of a post where the post status is set to "draft" or "pending publishing," the blog's admin will receive an email containing the post's title, publish date, tags, categories, and the content of the post. At the end of the email, there will be a link to approve the post. Clicking the link will set the post to be published on the set publish date.
+Email Post Approval allows you to review and approve posts for publishing right from your inbox. Upon the saving (or creation) of a post where the post status is set to "draft" or "pending publishing," the blog's admin will receive an email containing the post's title, publish date, tags, categories, and the content of the post. At the end of the email, there will be a link to approve the post. Clicking the link will set the post to be published on the set publish date.
 
 ### Changelog
+* v2.0
+	* Added security enhancements when saving settings.
+	* Rewrote plugin.
 * v1.2.2
 	* Added post thumbnail option
 * v1.2.1
@@ -31,7 +34,7 @@ WordPress plugin that provides the ability to review and approve posts for publi
 
 ### Installation
 #### Requirements
-* WordPress version 3.0 and later (tested at 3.4.2)
+* WordPress version 3.0 and later (tested at 4.7.3)
 
 #### Installation
 1. Unpack the download package.
