@@ -3,7 +3,7 @@
 Plugin Name: Email Post Approval
 Description: Review and approve posts for publishing right from your inbox
 Version: 2.0
-Author: travislopes, mcinvale
+Author: Travis Lopes, Matt McInvale (BinaryM)
 Author URI: http://binarym.com/
 License: GPL2
  */
@@ -48,7 +48,9 @@ class Email_Post_Approval {
 		register_deactivation_hook( __FILE__, array( 'Email_Post_Approval', 'deactivation' ) );
 
 		add_action( 'save_post', array( $this, 'send_email' ) );
-		add_action( 'init', array( $this, 'approve_post' ), 0);
+		add_action( 'init', array( $this, 'approve_post' ), 1 );
+
+		add_action( 'admin_menu', array( $this, 'register_settings_page' ) );
 
 	}
 
@@ -68,7 +70,7 @@ class Email_Post_Approval {
 	 *
 	 * @uses Email_Post_Approval::generate_hash()
 	 */
-	public function send_email( $post_id = 0 ){
+	public function send_email( $post_id = 0 ) {
 
 		// If this is an auto-save post, exit.
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -299,6 +301,247 @@ class Email_Post_Approval {
 
 
 
+
+	// # SETTINGS ------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Register Email Post Approval settings page.
+	 *
+	 * @since  2.0
+	 * @access public
+	 */
+	public function register_settings_page() {
+
+		add_options_page( esc_html__( 'Email Post Approval Settings', 'email-post-approval' ), esc_html__( 'Email Post Approval', 'email-post-approval' ), 'manage_options', 'email-post-approval', array( $this, 'settings_page' ) );
+
+	}
+
+	/**
+	 * Display Email Post Approval settings page.
+	 *
+	 * @since  2.0
+	 * @access public
+	 *
+	 * @uses Email_Post_Approval::get_email_fields()
+	 * @uses Email_Post_Approval::get_post_stati()
+	 * @uses Email_Post_Approval::maybe_save_settings()
+	 */
+	public function settings_page() {
+
+		// Open page.
+		printf(
+			'<div class="wrap"><h2>%s</h2>',
+			esc_html__( 'Email Post Approval Settings', 'email-post-approval' )
+		);
+
+		// Save and get settings.
+		$settings = $this->maybe_save_settings();
+
+		// Get users.
+		$users = get_users(
+			array(
+				'fields'  => array( 'ID', 'display_name' ),
+				'orderby' => 'display_name',
+			)
+		);
+
+		// Display settings.
+
+	?>
+
+		<form method="POST">
+
+			<?php wp_nonce_field( 'email-post-approval-settings' ); ?>
+
+			<table class="form-table">
+
+				<tbody>
+
+					<tr>
+						<th scope="row"><label for="epa_send_to"><?php esc_html_e( 'Send Post Approval Email To:', 'email-post-approval' ); ?></label></th>
+						<td><input class="regular-text" name="send_to" id="send_to" value="<?php echo esc_attr( $settings['send_to'] ); ?>" />
+					</tr>
+
+					<tr>
+						<th scope="row"><label for="epa_default_author"><?php esc_html_e( 'Default Author For Approved Posts:', 'email-post-approval' ); ?></label></th>
+						<td>
+							<select name="default_author" id="epa_default_author">
+								<option value="0"><?php esc_html_e( 'Use Post Author', 'email-post-approval' ); ?></option>
+								<?php
+									foreach ( $users as $user ) {
+										echo '<option value="' . esc_attr( $user->ID ) . '" ' . selected( $settings['default_author'], $user->ID, false ) . '>' . esc_html( $user->display_name ) . '</option>';
+									}
+								?>
+							</select>
+						</td>
+					</tr>
+
+					<tr>
+						<th scope="row"><label><?php esc_html_e( 'Send Email When Post Status Is:', 'email-post-approval' ); ?></label></th>
+						<td>
+							<fieldset>
+								<?php
+
+									// Loop through post stati.
+									foreach ( $this->get_post_stati() as $post_status ) {
+
+										// Get checked state.
+										$checked = in_array( $post_status->name, $settings['post_statuses'] ) ? ' checked="checked"' : '';
+
+										// Display field.
+										echo '<label><input name="post_statuses[]" type="checkbox" value="' . esc_attr( $post_status->name ) . '"' . $checked . '>' . esc_html( $post_status->label ) . '</label><br />';
+
+									}
+
+								?>
+							</fieldset>
+						</td>
+					</tr>
+
+					<tr>
+						<th scope="row"><label><?php esc_html_e( 'Fields To Include In Email:', 'email-post-approval' ); ?></label></th>
+						<td>
+							<fieldset>
+								<?php
+
+									// Loop through email fields.
+									foreach ( $this->get_email_fields() as $email_field => $label ) {
+
+										// Get checked state.
+										$checked = in_array( $email_field, $settings['email_fields'] ) ? ' checked="checked"' : '';
+
+										// Display field.
+										echo '<label><input name="email_fields[]" type="checkbox" value="' . esc_attr( $email_field ) . '"' . $checked . '>' . $label . '</label><br />';
+
+									}
+
+								?>
+							</fieldset>
+						</td>
+					</tr>
+
+				</tbody>
+
+			</table>
+
+			<p class="submit">
+				<input type="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Settings', 'email-post-approval' ); ?>" />
+			</p>
+
+		</form>
+
+	<?php
+
+		// Close page.
+		echo '</div>';
+
+	}
+
+	/**
+	 * Save Email Post Approval settings.
+	 *
+	 * @since  2.0
+	 * @access public
+	 *
+	 * @uses Email_Post_Approval::get_email_fields()
+	 * @uses Email_Post_Approval::get_post_stati()
+	 * @uses Email_Post_Approval::is_postback()
+	 *
+	 * @return array
+	 */
+	public function maybe_save_settings() {
+
+		// Get current settings.
+		$settings = array(
+			'send_to'        => get_option( 'epa_send_to' ),
+			'post_statuses'  => get_option( 'epa_post_statuses' ),
+			'email_fields'   => get_option( 'epa_email_fields' ),
+			'default_author' => get_option( 'epa_default_author' ),
+		);
+
+		// If there was no postback, return current settings.
+		if ( ! $this->is_postback() ) {
+			return $settings;
+		}
+
+		// Validate nonce.
+		check_admin_referer( 'email-post-approval-settings' );
+
+		// Get new settings.
+		$new_settings = $_POST;
+
+		// Sanitize settings.
+		foreach ( $new_settings as $key => $value ) {
+
+			switch ( $key ) {
+
+				case 'email_fields':
+
+					// Get email fields.
+					$email_fields = $this->get_email_fields();
+					$email_fields = array_keys( $email_fields );
+
+					// Loop through values.
+					foreach ( $value as $i => $field ) {
+
+						// If this is a non-existent field, remove it.
+						if ( ! in_array( $field, $email_fields ) ) {
+							unset( $value[ $i ] );
+						}
+
+					}
+
+					$new_settings[ $key ] = $value;
+
+					break;
+
+				case 'post_statuses':
+
+					// Get post stati.
+					$post_stati = $this->get_post_stati();
+					$post_stati = array_keys( $post_stati );
+
+					// Loop through values.
+					foreach ( $value as $i => $field ) {
+
+						// If this is a non-existent post status, remove it.
+						if ( ! in_array( $field, $post_stati ) ) {
+							unset( $value[ $i ] );
+						}
+
+					}
+
+					$new_settings[ $key ] = $value;
+
+					break;
+
+				case 'send_to':
+					$new_settings[ $key ] = sanitize_email( $value );
+					break;
+
+				default:
+					$new_settings[ $key ] = sanitize_text_field( $value );
+					break;
+
+			}
+
+		}
+
+		// Save settings.
+		foreach ( $new_settings as $key => $value ) {
+
+			update_option( 'epa_' . $key, $value );
+
+		}
+
+		return $new_settings;
+
+	}
+
+
+
+
+
 	// # HELPER METHODS ------------------------------------------------------------------------------------------------
 
 	/**
@@ -311,7 +554,7 @@ class Email_Post_Approval {
 	 *
 	 * @return string
 	 */
-	private function generate_hash( $post_id = 0 ){
+	private function generate_hash( $post_id = 0 ) {
 
 		// Check for existing hash.
 		$existing_hash = get_post_meta( $post_id, '_epa-approve_key', true );
@@ -328,6 +571,70 @@ class Email_Post_Approval {
 		update_post_meta( $post_id, '_epa-approve_key', $hash );
 
 		return $hash;
+
+	}
+
+	/**
+	 * Get fields available for Email Post Approval email.
+	 *
+	 * @since  2.0
+	 * @access public
+	 *
+	 * @return array
+	 */
+	public function get_email_fields() {
+
+		return array(
+			'title'       => esc_html__( 'Post Title', 'email-post-approval' ),
+			'post_author' => esc_html__( 'Post Author', 'email-post-approval' ),
+			'post_date'   => esc_html__( 'Publish Date', 'email-post-approval' ),
+			'categories'  => esc_html__( 'Categories', 'email-post-approval' ),
+			'tags'        => esc_html__( 'Tags', 'email-post-approval' ),
+			'post_meta'   => esc_html__( 'Post Meta', 'email-post-approval' ),
+			'body'        => esc_html__( 'Post Body', 'email-post-approval' ),
+			'thumbnail'   => esc_html__( 'Featured Image', 'email-post-approval' ),
+		);
+
+	}
+
+	/**
+	 * Get post stati available for Email Post Approval.
+	 *
+	 * @since  2.0
+	 * @access public
+	 *
+	 * @return array
+	 */
+	public function get_post_stati() {
+
+		// Get post stati.
+		$post_stati = get_post_stati( null, 'objects' );
+
+		// Loop through post stati.
+		foreach ( $post_stati as $name => $post_status ) {
+
+			// If this is an excluded post status, remove it.
+			if ( in_array( $name, array( 'trash', 'auto-draft', 'inherit' ) ) ) {
+				unset( $post_stati[ $name ] );
+			}
+
+		}
+
+		return $post_stati;
+
+	}
+
+	/**
+	 * Determine if the current request is a postback.
+	 *
+	 * @since  2.0
+	 * @access public
+	 *
+	 * @return bool
+	 */
+	public function is_postback() {
+
+		return is_array( $_POST ) && count( $_POST ) > 0;
 
 	}
 
